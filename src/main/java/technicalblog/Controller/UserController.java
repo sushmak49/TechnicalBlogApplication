@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import technicalblog.model.Post;
 import technicalblog.model.User;
+import technicalblog.model.UserProfile;
 import technicalblog.service.PostService;
 import technicalblog.service.UserService;
 
@@ -33,12 +34,18 @@ public class UserController {
     }
 
     @RequestMapping("users/registration")
-    public String registration() {
+    public String registration(Model model) {
+        //model.addAttribute("user",new User());
+        User user = new User();
+        UserProfile profile = new UserProfile();
+        user.setProfile(profile);
+        model.addAttribute("User",user);
         return "users/registration";
     }
 
     @RequestMapping(value="users/registration",method=RequestMethod.POST)
     public String registerUser(User user) {
+        userService.registerUser(user);
         return "users/login";
     }
 
@@ -55,7 +62,8 @@ public class UserController {
 
     @RequestMapping(value="users/login", method=RequestMethod.POST)
     public String loginUser(User user) {
-        if(userService.login(user)) {
+        User existingUser = userService.login(user);
+        if(existingUser!=null) {
             return "redirect:/posts";
         } else {
             return "users/login";
